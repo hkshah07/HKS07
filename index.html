@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL HKS07: The Final Mission</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-void: #020202;
+            --alert-red: #ff0033;
+        }
+        body { 
+            background: var(--dark-void); color: var(--neon-green); 
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0; overflow-x: hidden; height: 100vh;
+        }
+
+        /* Matrix Rain Canvas */
+        #matrixCanvas {
+            position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.15;
+        }
+
+        .container { 
+            max-width: 600px; margin: 40px auto; 
+            padding: 25px; border: 1px solid var(--neon-green);
+            background: rgba(0, 5, 0, 0.9);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+        }
+
+        h1 { font-family: 'Rajdhani', sans-serif; text-align: center; letter-spacing: 4px; text-shadow: 0 0 10px var(--neon-green); }
+
+        .input-box { margin: 20px 0; }
+        input, select {
+            background: transparent; border: 1px solid var(--neon-green);
+            color: var(--neon-green); padding: 12px; width: 90%; font-family: inherit; margin-bottom: 10px;
+        }
+
+        button {
+            background: var(--neon-green); color: #000; border: none;
+            padding: 15px; width: 100%; font-family: 'Rajdhani', sans-serif;
+            font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem;
+        }
+        button:hover { background: #000; color: var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
+
+        /* Future Message Styling */
+        #futureMessage {
+            display: none; margin-top: 30px; text-align: left;
+            border-top: 2px dashed var(--neon-green); padding-top: 20px;
+        }
+
+        .typewriter { line-height: 1.6; font-size: 1.1rem; }
+        
+        /* Focus Alert (Blinking) */
+        .focus-alert {
+            color: var(--alert-red);
+            animation: blink 0.8s infinite;
+            font-weight: bold;
+            display: block; margin: 15px 0; border: 1px solid var(--alert-red); padding: 10px;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .stat-highlight { color: #fff; text-shadow: 0 0 5px #fff; }
+    </style>
+</head>
+<body>
+
+<canvas id="matrixCanvas"></canvas>
+
+<div class="container">
+    <h1>PROJECT HKS07</h1>
+    <p style="text-align:center; font-size:0.7rem;">[ SECURITY_CLEARANCE_REQUIRED ]</p>
+
+    <div class="input-box">
+        <label>> SUBJECT NAME:</label><br>
+        <input type="text" id="vName" placeholder="...">
+    </div>
+
+    <div class="input-box">
+        <label>> ORIGIN_DATE (DOB):</label><br>
+        <div style="display:flex; gap:10px;">
+            <select id="d"></select>
+            <select id="m"></select>
+            <select id="y"></select>
+        </div>
+    </div>
+
+    <button onclick="startTransmission()">GENERATE MY MESSAGE</button>
+
+    <div id="futureMessage">
+        <div id="typewriterText" class="typewriter"></div>
+    </div>
+</div>
+
+<audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+
+<script>
+    // 1. Matrix Rain Animation
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const chars = "01010182736459HKS07".split("");
+    const drops = Array(Math.floor(canvas.width/20)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00ff41";
+        ctx.font = "15px monospace";
+        drops.forEach((y, i) => {
+            const text = chars[Math.floor(Math.random()*chars.length)];
+            ctx.fillText(text, i*20, y*20);
+            if(y*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
+    }
+    setInterval(drawMatrix, 50);
+
+    // 2. Date Setup
+    const ds=document.getElementById('d'), ms=document.getElementById('m'), ys=document.getElementById('y');
+    for(let i=1;i<=31;i++) ds.innerHTML+=`<option>${i}</option>`;
+    const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    months.forEach((m,i)=>ms.innerHTML+=`<option value="${i}">${m}</option>`);
+    for(let i=2026;i>=1970;i--) ys.innerHTML+=`<option>${i}</option>`;
+
+    // 3. Digital Sum
+    function getCodeName(name) {
+        let s = 0;
+        for(let c of name.toUpperCase()) {
+            let p = c.charCodeAt(0)-64;
+            if(p>=1 && p<=26) s += (p > 9 ? Math.floor(p/10)+(p%10) : p);
+        }
+        while(s>=10) s = s.toString().split('').reduce((a,b)=>parseInt(a)+parseInt(b), 0);
+        return s || 7;
+    }
+
+    // 4. Start Transmission with Typewriter & Focus Alert
+    function startTransmission() {
+        const name = document.getElementById('vName').value.toUpperCase();
+        if(!name) return;
+
+        document.getElementById('beep').play();
+        document.getElementById('futureMessage').style.display = 'block';
+        const txtContainer = document.getElementById('typewriterText');
+        txtContainer.innerHTML = "";
+
+        const bDay = new Date(ys.value, ms.value, ds.value);
+        const daysLived = Math.floor((new Date() - bDay)/(1000*60*60*24));
+        const daysLeft = Math.floor((85 * 365.25) - daysLived);
+        const code = getCodeName(name);
+
+        const lines = [
+            `> SUBJECT_IDENTIFIED: ${name}`,
+            `> CODE_NAME: ${code}`,
+            `> BIOLOGICAL_TIME_CONSUMED: ${daysLived.toLocaleString()} DAYS`,
+            `> TIME_REMAINING: ${daysLeft.toLocaleString()} DAYS`,
+            `-----------------------------------`,
+            `आप PROJECT HKS07 के एक सक्रिय सदस्य हैं।`,
+            `<span class="focus-alert">⚠️ WARNING: सोशल मीडिया और व्यर्थ कार्यों में समय नष्ट करना बंद करें!</span>`,
+            `आपका प्राथमिक मिशन अपने GOAL और TARGET पर फोकस करना है।`,
+            `भविष्य आपके वर्तमान निर्णयों पर निर्भर है। सफल होना ही एकमात्र विकल्प है।`,
+            `-----------------------------------`,
+            `> TRANSMISSION_CLOSED`
+        ];
+
+        let i = 0;
+        function typeLine() {
+            if(i < lines.length) {
+                let div = document.createElement('p');
+                div.innerHTML = lines[i];
+                txtContainer.appendChild(div);
+                i++;
+                setTimeout(typeLine, 800); // 800ms gap between lines
+            }
+        }
+        typeLine();
+    }
+</script>
+
+</body>
+</html>
