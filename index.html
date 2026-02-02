@@ -3,179 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL HKS07: The Final Mission</title>
+    <title>HKS07: Future Mission Control</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        :root {
-            --neon-green: #00ff41;
-            --dark-void: #020202;
-            --alert-red: #ff0033;
-        }
-        body { 
-            background: var(--dark-void); color: var(--neon-green); 
-            font-family: 'Share Tech Mono', monospace;
-            margin: 0; overflow-x: hidden; height: 100vh;
-        }
-
-        /* Matrix Rain Canvas */
-        #matrixCanvas {
-            position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.15;
-        }
-
-        .container { 
-            max-width: 600px; margin: 40px auto; 
-            padding: 25px; border: 1px solid var(--neon-green);
-            background: rgba(0, 5, 0, 0.9);
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
-        }
-
-        h1 { font-family: 'Rajdhani', sans-serif; text-align: center; letter-spacing: 4px; text-shadow: 0 0 10px var(--neon-green); }
-
-        .input-box { margin: 20px 0; }
-        input, select {
-            background: transparent; border: 1px solid var(--neon-green);
-            color: var(--neon-green); padding: 12px; width: 90%; font-family: inherit; margin-bottom: 10px;
-        }
-
-        button {
-            background: var(--neon-green); color: #000; border: none;
-            padding: 15px; width: 100%; font-family: 'Rajdhani', sans-serif;
-            font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem;
-        }
-        button:hover { background: #000; color: var(--neon-green); box-shadow: 0 0 20px var(--neon-green); }
-
-        /* Future Message Styling */
-        #futureMessage {
-            display: none; margin-top: 30px; text-align: left;
-            border-top: 2px dashed var(--neon-green); padding-top: 20px;
-        }
-
-        .typewriter { line-height: 1.6; font-size: 1.1rem; }
+        :root { --neon: #00ff41; --bg: #020202; --alert: #ff0033; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Share Tech Mono', monospace; margin: 0; overflow-x: hidden; }
         
-        /* Focus Alert (Blinking) */
-        .focus-alert {
-            color: var(--alert-red);
-            animation: blink 0.8s infinite;
-            font-weight: bold;
-            display: block; margin: 15px 0; border: 1px solid var(--alert-red); padding: 10px;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
+        #matrix { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.15; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid var(--neon); background: rgba(0, 5, 0, 0.95); position: relative; }
+        
+        h1 { font-family: 'Rajdhani', sans-serif; text-align: center; text-shadow: 0 0 10px var(--neon); border-bottom: 2px solid var(--neon); }
+        input, select { background: #000; border: 1px solid var(--neon); color: var(--neon); padding: 10px; width: 90%; font-family: inherit; margin-bottom: 10px; }
+        
+        .btn { background: var(--neon); color: #000; border: none; padding: 15px; width: 100%; font-family: 'Rajdhani'; font-weight: bold; cursor: pointer; margin: 5px 0; }
+        .btn-download { background: transparent; color: #fff; border: 1px solid #fff; margin-top: 20px; display: none; }
 
-        .stat-highlight { color: #fff; text-shadow: 0 0 5px #fff; }
+        #futureCard { display: none; margin-top: 20px; padding: 20px; border: 2px solid var(--neon); position: relative; background: #000; }
+        .typewriter p { margin: 10px 0; line-height: 1.4; border-left: 2px solid var(--neon); padding-left: 10px; }
+        .age-msg { color: #fff; background: rgba(0, 255, 65, 0.1); padding: 10px; border: 1px dashed var(--neon); font-weight: bold; }
+        .focus-alert { color: var(--alert); animation: blink 1s infinite; display: block; margin: 10px 0; font-size: 0.9rem; }
+        @keyframes blink { 50% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
-<canvas id="matrixCanvas"></canvas>
+<canvas id="matrix"></canvas>
 
 <div class="container">
-    <h1>PROJECT HKS07</h1>
-    <p style="text-align:center; font-size:0.7rem;">[ SECURITY_CLEARANCE_REQUIRED ]</p>
-
-    <div class="input-box">
-        <label>> SUBJECT NAME:</label><br>
-        <input type="text" id="vName" placeholder="...">
+    <h1>UNIT ACCESS: HKS07</h1>
+    
+    <input type="text" id="name" placeholder="IDENTIFY SUBJECT NAME...">
+    <div style="display:flex; gap:10px;">
+        <select id="d"></select><select id="m"></select><select id="y"></select>
     </div>
 
-    <div class="input-box">
-        <label>> ORIGIN_DATE (DOB):</label><br>
-        <div style="display:flex; gap:10px;">
-            <select id="d"></select>
-            <select id="m"></select>
-            <select id="y"></select>
+    <button class="btn" onclick="startTransmission()">GENERATE MY MESSAGE</button>
+
+    <div id="futureCard">
+        <div style="font-size: 0.7rem; border-bottom: 1px solid var(--neon); margin-bottom: 10px; display: flex; justify-content: space-between;">
+            <span>PRIORITY: HIGH</span><span>ENCRYPTION: 2077_X</span>
         </div>
+        <div id="typewriter" class="typewriter"></div>
     </div>
 
-    <button onclick="startTransmission()">GENERATE MY MESSAGE</button>
-
-    <div id="futureMessage">
-        <div id="typewriterText" class="typewriter"></div>
-    </div>
+    <button id="dlBtn" class="btn btn-download" onclick="downloadCard()">DOWNLOAD TRANSMISSION (IMAGE)</button>
 </div>
 
-<audio id="beep" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
+<audio id="sound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
 
 <script>
-    // 1. Matrix Rain Animation
-    const canvas = document.getElementById('matrixCanvas');
+    // Matrix Background
+    const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const chars = "01010182736459HKS07".split("");
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
     const drops = Array(Math.floor(canvas.width/20)).fill(1);
-
-    function drawMatrix() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function draw() {
+        ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = "#00ff41";
-        ctx.font = "15px monospace";
         drops.forEach((y, i) => {
-            const text = chars[Math.floor(Math.random()*chars.length)];
-            ctx.fillText(text, i*20, y*20);
+            ctx.fillText("HKS07"[Math.floor(Math.random()*5)], i*20, y*20);
             if(y*20 > canvas.height && Math.random() > 0.975) drops[i] = 0;
             drops[i]++;
         });
     }
-    setInterval(drawMatrix, 50);
+    setInterval(draw, 50);
 
-    // 2. Date Setup
+    // Date Selectors
     const ds=document.getElementById('d'), ms=document.getElementById('m'), ys=document.getElementById('y');
     for(let i=1;i<=31;i++) ds.innerHTML+=`<option>${i}</option>`;
     const months=["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
     months.forEach((m,i)=>ms.innerHTML+=`<option value="${i}">${m}</option>`);
-    for(let i=2026;i>=1970;i--) ys.innerHTML+=`<option>${i}</option>`;
+    for(let i=2026;i>=1950;i--) ys.innerHTML+=`<option>${i}</option>`;
 
-    // 3. Digital Sum
-    function getCodeName(name) {
-        let s = 0;
-        for(let c of name.toUpperCase()) {
-            let p = c.charCodeAt(0)-64;
-            if(p>=1 && p<=26) s += (p > 9 ? Math.floor(p/10)+(p%10) : p);
-        }
-        while(s>=10) s = s.toString().split('').reduce((a,b)=>parseInt(a)+parseInt(b), 0);
-        return s || 7;
+    function getAgeMessage(age) {
+        if(age <= 5) return "Is age me pyaar aur safety sabse zaroori hai. Mobile kam do, time zyada do. Strong childhood hi strong future banati hai.";
+        if(age <= 14) return "Is age me curiosity ko grow hone do. Sirf marks nahi, habits, confidence aur skills future decide karte hain.";
+        if(age <= 20) return "Yeh age direction decide karti hai. Scrolling kam, skill zyada. Galti karo, seekho, par apna time waste mat karo.";
+        if(age <= 25) return "Degree important hai, par discipline aur consistency zyada. Aaj ka struggle hi kal ki freedom banata hai.";
+        if(age <= 30) return "Comparison chhodo, clarity lao. Career, health aur money pe focus karo. Yehi years poori life ka base bante hain.";
+        if(age <= 40) return "Stability luck se nahi, daily decisions se aati hai. Health aur family ignore ki to success bhi adhuri rahegi.";
+        if(age <= 50) return "Experience ko ego nahi, guidance banao. Paisa zaroori hai, par sukoon aur respect usse bhi zyada.";
+        return "Is age me bhagna nahi, sikhaana hota hai. Apna gyaan baantna hi sabse badi achievement hoti hai.";
     }
 
-    // 4. Start Transmission with Typewriter & Focus Alert
     function startTransmission() {
-        const name = document.getElementById('vName').value.toUpperCase();
-        if(!name) return;
+        const nameInput = document.getElementById('name').value.toUpperCase();
+        if(!nameInput) return;
+        document.getElementById('sound').play();
+        
+        const bDate = new Date(ys.value, ms.value, ds.value);
+        const age = new Date().getFullYear() - bDate.getFullYear();
+        const daysLived = Math.floor((new Date() - bDate)/(1000*60*60*24));
+        const daysLeft = Math.floor((85*365.25)-daysLived);
+        
+        // Digital Sum logic
+        let sum = nameInput.replace(/[^A-Z]/g, '').split('').reduce((a,b)=>a+(b.charCodeAt(0)-64), 0);
+        while(sum >= 10) sum = sum.toString().split('').reduce((x,y)=>parseInt(x)+parseInt(y), 0);
 
-        document.getElementById('beep').play();
-        document.getElementById('futureMessage').style.display = 'block';
-        const txtContainer = document.getElementById('typewriterText');
-        txtContainer.innerHTML = "";
-
-        const bDay = new Date(ys.value, ms.value, ds.value);
-        const daysLived = Math.floor((new Date() - bDay)/(1000*60*60*24));
-        const daysLeft = Math.floor((85 * 365.25) - daysLived);
-        const code = getCodeName(name);
-
+        document.getElementById('futureCard').style.display = 'block';
+        const tv = document.getElementById('typewriter');
+        tv.innerHTML = "";
+        
         const lines = [
-            `> SUBJECT_IDENTIFIED: ${name}`,
-            `> CODE_NAME: ${code}`,
-            `> BIOLOGICAL_TIME_CONSUMED: ${daysLived.toLocaleString()} DAYS`,
-            `> TIME_REMAINING: ${daysLeft.toLocaleString()} DAYS`,
-            `-----------------------------------`,
-            `आप PROJECT HKS07 के एक सक्रिय सदस्य हैं।`,
-            `<span class="focus-alert">⚠️ WARNING: सोशल मीडिया और व्यर्थ कार्यों में समय नष्ट करना बंद करें!</span>`,
-            `आपका प्राथमिक मिशन अपने GOAL और TARGET पर फोकस करना है।`,
-            `भविष्य आपके वर्तमान निर्णयों पर निर्भर है। सफल होना ही एकमात्र विकल्प है।`,
-            `-----------------------------------`,
-            `> TRANSMISSION_CLOSED`
+            `> SUBJECT: ${nameInput}`,
+            `> CODE_NUM: ${sum || 7}`,
+            `> DAYS_CONSUMED: ${daysLived.toLocaleString()}`,
+            `> MISSION_LIFE_LEFT: ${daysLeft > 0 ? daysLeft.toLocaleString() : '??'} DAYS`,
+            `<div class="age-msg">"${getAgeMessage(age)}"</div>`,
+            `<span class="focus-alert">⚠️ PROJECT HKS07: GOAL PE FOCUS KARO, TARGET ACHIEVE KARO!</span>`,
+            `> YOUR PRIMARY FOCUS: SUCCEED.`
         ];
 
-        let i = 0;
-        function typeLine() {
-            if(i < lines.length) {
-                let div = document.createElement('p');
-                div.innerHTML = lines[i];
-                txtContainer.appendChild(div);
-                i++;
-                setTimeout(typeLine, 800); // 800ms gap between lines
+        let idx = 0;
+        function type() {
+            if(idx < lines.length) {
+                let p = document.createElement('p');
+                p.innerHTML = lines[idx];
+                tv.appendChild(p);
+                idx++;
+                setTimeout(type, 600);
+            } else {
+                document.getElementById('dlBtn').style.display = 'block';
             }
         }
-        typeLine();
+        type();
+    }
+
+    function downloadCard() {
+        html2canvas(document.getElementById('futureCard')).then(canvas => {
+            let link = document.createElement('a');
+            link.download = 'HKS07_Transmission.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
     }
 </script>
 
